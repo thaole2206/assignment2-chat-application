@@ -1,13 +1,11 @@
 package com.assignment2.chat.application.entities;
 
-import com.fasterxml.jackson.annotation.JsonBackReference;
-import com.fasterxml.jackson.databind.ser.Serializers;
-import lombok.Data;
+import lombok.Builder;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 import javax.persistence.*;
-import java.util.Date;
 import java.util.HashSet;
 import java.util.Set;
 
@@ -15,13 +13,25 @@ import java.util.Set;
 @Table(name = "User_Tbl", schema = "Assignment2")
 @Setter
 @Getter
+@NoArgsConstructor
 public class UserEntity extends BaseEntity {
 
     @Column(nullable = false, unique = true)
     private String username;
     private String password;
 
-    @ManyToMany(cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    @Builder
+    public UserEntity(Long id, String username, String password, Set<RoleEntity> roles, Set<ScreenShotEntity> screenShots, LogInfoEntity logInfo, Set<ChatEntity> chatMessages) {
+        super(id);
+        this.username = username;
+        this.password = password;
+        this.roles = roles;
+        this.screenShots = screenShots;
+        this.logInfo = logInfo;
+        this.chatMessages = chatMessages;
+    }
+
+    @ManyToMany(cascade = {CascadeType.MERGE, CascadeType.REMOVE}, fetch = FetchType.LAZY)
     @JoinTable(
             name="Users_Roles_Tbl", schema = "Assignment2",
             joinColumns = {@JoinColumn(name="user_id", referencedColumnName = "id")},
@@ -34,4 +44,7 @@ public class UserEntity extends BaseEntity {
 
     @OneToOne(cascade = CascadeType.ALL, mappedBy = "user", fetch = FetchType.LAZY)
     private LogInfoEntity logInfo;
+
+    @OneToMany(fetch = FetchType.LAZY, mappedBy = "sender")
+    private Set<ChatEntity> chatMessages = new HashSet<>();
 }

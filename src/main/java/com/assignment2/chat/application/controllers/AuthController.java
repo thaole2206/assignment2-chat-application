@@ -1,25 +1,22 @@
 package com.assignment2.chat.application.controllers;
 
-import com.assignment2.chat.application.models.LogInfo;
 import com.assignment2.chat.application.services.LogInfoService;
 import lombok.AllArgsConstructor;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.core.Authentication;
-import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.User;
 import org.springframework.security.web.authentication.logout.SecurityContextLogoutHandler;
 import org.springframework.stereotype.Controller;
+import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.servlet.ModelAndView;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.security.Principal;
-import java.util.Collection;
-import java.util.Date;
+import java.time.LocalDateTime;
 
-import static com.assignment2.chat.application.constants.CommonConstants.ROLE_ADMIN;
-import static com.assignment2.chat.application.constants.CommonConstants.ROLE_MEMBER;
 
 @Controller
 @AllArgsConstructor
@@ -27,15 +24,6 @@ public class AuthController {
 
     AuthenticationManager authenticationManager;
     LogInfoService logInfoService;
-
-    /**
-     *
-     * @return homepage
-     */
-    @GetMapping({"/", "/index"})
-    public String index() {
-        return "homepage";
-    }
 
     /**
      *
@@ -48,17 +36,13 @@ public class AuthController {
 
     @GetMapping("/signout")
     public String logout(HttpServletRequest request, HttpServletResponse response){
-        Date date = new Date(System.currentTimeMillis());
+        LocalDateTime date = LocalDateTime.now();
         Authentication auth = SecurityContextHolder.getContext().getAuthentication();
         User logUser = (User) auth.getPrincipal();
 
-        LogInfo logout = logInfoService.findLogEntityByUser(logUser);
-        logout.setLastLogoutDate(date);
-        logout.setUser(logUser);
-
         new SecurityContextLogoutHandler().logout(request, response, auth);
 
-        logInfoService.saveOrUpdate(logout);
+        logInfoService.recordLogOut(logUser, date);
 
         return "redirect:/login";
     }
@@ -86,8 +70,9 @@ public class AuthController {
      * @return 403 error page
      */
     @GetMapping("/403")
-    public String accessDenied() {
-        return "403";
+    public String accessDenied(Model model) {
+        model.addAttribute("param.error", "Wrong username or password");
+        return "/error/403";
     }
 
     /**
@@ -96,36 +81,13 @@ public class AuthController {
      * @return home page based on user role
      */
     @GetMapping("/home")
-    public String homepage( Principal principal) {
-        String successUrl = "/homepage";
-
+    public String homepage(Principal principal) {
         User logUser = (User) ((Authentication) principal).getPrincipal();
-        Date date = new Date(System.currentTimeMillis());
-        LogInfo login;
-        try {
-            login = logInfoService.findLogEntityByUser(logUser);
-        } catch (Exception ex){
-            login = new LogInfo();
-        }
+        LocalDateTime date = LocalDateTime.now();
 
-        login.setUser(logUser);
-        login.setLastLoginDate(date);
+        logInfoService.recordLogIn(logUser, date);
 
-        logInfoService.saveOrUpdate(login);
-
-        Collection<GrantedAuthority> authorityCollections = logUser.getAuthorities();
-
-        for(GrantedAuthority authority : authorityCollections){
-            System.out.println(authority.toString());
-            if (ROLE_ADMIN.equalsIgnoreCase(authority.toString())){
-                successUrl = "/admin/home";
-                break;
-            }
-            if(ROLE_MEMBER.equalsIgnoreCase(authority.toString())){
-                successUrl ="/home";
-            }
-        }
-        return "redirect:" + successUrl;
+        return ("/user/home");
     }
 
 }

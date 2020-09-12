@@ -48,7 +48,7 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
                 .and().authorizeRequests()
                 .antMatchers("/admin/**", "/home/**", "/chat/**", "/topic/**", "/app/**").authenticated()
                 .antMatchers("/register").permitAll()
-                .antMatchers("/home/**").authenticated()
+                .antMatchers("/home/**", "/user/**").authenticated()
                 .and() .formLogin().loginPage("/login").usernameParameter("email").passwordParameter("password").defaultSuccessUrl("/home").failureUrl("/login?error")
                 .and().exceptionHandling().accessDeniedPage("/403");
         http.csrf().disable();

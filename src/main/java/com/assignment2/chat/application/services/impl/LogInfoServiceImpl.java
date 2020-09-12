@@ -9,8 +9,9 @@ import com.assignment2.chat.application.services.LogInfoService;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.core.userdetails.User;
-import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
+
+import java.time.LocalDateTime;
 
 @Service
 @AllArgsConstructor
@@ -21,33 +22,50 @@ public class LogInfoServiceImpl implements LogInfoService {
     private final UserRepository userRepository;
 
     @Override
-    public void saveOrUpdate(LogInfo request) {
+    public LogInfoEntity saveOrUpdate(LogInfo request) {
         UserEntity userEntity = userRepository.findUserEntityByUsername(request.getUser().getUsername()).orElse(null);
-        LogInfoEntity entity = new LogInfoEntity();
 
-        entity.setId(request.getId());
-        entity.setLastLoginDate(request.getLastLoginDate());
-        entity.setLastLogoutDate(request.getLastLogoutDate());
-        entity.setUser(userEntity);
-
-        LogInfoEntity savedEntity = logInfoRepository.save(entity);
-        log.info("Saved login/ logout info: " + savedEntity.toString());
+        //TODO: write to log
+        return logInfoRepository.save(
+                LogInfoEntity.builder()
+                        .id(request.getId()).lastLoginDate(request.getLastLoginDate()).lastLogoutDate(request.getLastLogoutDate()).user(userEntity)
+                        .build());
     }
 
     @Override
     public LogInfo findLogEntityByUser(User user) {
-        UserEntity userEntity = userRepository.findUserEntityByUsername(user.getUsername()).orElse(null);
-        if(userEntity == null){
-            throw new UsernameNotFoundException(user.getUsername());
+        String username = user.getUsername();
+
+        if(logInfoRepository.findLogInfoEntityByUser_Username(username).isPresent()){
+            LogInfoEntity entity =  logInfoRepository.findLogInfoEntityByUser_Username(username).get();
+            return  LogInfo.builder()
+                    .lastLoginDate(entity.getLastLoginDate()).lastLogoutDate(entity.getLastLogoutDate())
+                    .id(entity.getId()).user(user)
+                    .build();
+        }
+        return null;
+    }
+
+    @Override
+    public void recordLogIn(User user, LocalDateTime date) {
+        LogInfo login = findLogEntityByUser(user);
+
+        if(login == null){
+            login = new LogInfo();
         }
 
-        LogInfoEntity entity =  logInfoRepository.findLogInfoEntityByUser(userEntity).orElse(null);
+        login.setUser(user);
+        login.setLastLoginDate(date);
 
-        LogInfo log = new LogInfo();
-        log.setLastLoginDate(entity.getLastLoginDate() != null ? entity.getLastLoginDate() : null);
-        log.setLastLogoutDate(entity.getLastLogoutDate() != null ? entity.getLastLogoutDate() : null);
-        log.setId(entity.getId());
+        saveOrUpdate(login);
+    }
 
-        return log;
+    @Override
+    public void recordLogOut(User user, LocalDateTime date) {
+        LogInfo logout = findLogEntityByUser(user);
+        logout.setLastLogoutDate(date);
+        logout.setUser(user);
+
+        saveOrUpdate(logout);
     }
 }

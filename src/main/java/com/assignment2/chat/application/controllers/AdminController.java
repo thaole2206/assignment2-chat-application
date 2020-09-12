@@ -1,12 +1,16 @@
 package com.assignment2.chat.application.controllers;
 
+import com.assignment2.chat.application.models.ChatMessage;
 import com.assignment2.chat.application.response.ScreenShotResponse;
+import com.assignment2.chat.application.services.ChatService;
 import com.assignment2.chat.application.services.ScreenShotService;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.tomcat.util.http.fileupload.IOUtils;
 import org.springframework.stereotype.Controller;
+import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.servlet.ModelAndView;
 
 import javax.servlet.http.HttpServletResponse;
 import java.io.ByteArrayInputStream;
@@ -21,11 +25,7 @@ import java.util.List;
 public class AdminController {
 
     private final ScreenShotService screenShotService;
-
-    @GetMapping("/home")
-    public String getIndexPage(){
-        return "/admin/homepage";
-    }
+    private final ChatService chatService;
 
     @GetMapping("/user/{id}/images")
     public void renderImageFromDB(@PathVariable String id, HttpServletResponse response) throws IOException {

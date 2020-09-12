@@ -11,6 +11,7 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Component;
 
 import java.util.HashSet;
+import java.util.NoSuchElementException;
 
 import static com.assignment2.chat.application.constants.CommonConstants.ROLE_ADMIN;
 import static com.assignment2.chat.application.constants.CommonConstants.ROLE_MEMBER;
@@ -25,25 +26,33 @@ public class DataSeedingListener implements ApplicationListener<ContextRefreshed
 
     @Override
     public void onApplicationEvent(ContextRefreshedEvent arg0) {
-        RoleEntity roleAdmin = new RoleEntity();
-        RoleEntity roleMember = new RoleEntity();
-        // Roles
-        if (roleRepository.findRoleEntityByName(ROLE_ADMIN) == null) {
-            roleAdmin.setName(ROLE_ADMIN);
+        RoleEntity roleAdmin;
+        try {
+            roleAdmin = roleRepository.findRoleEntityByName(ROLE_ADMIN).get();
+        } catch (NoSuchElementException e){
+           roleAdmin = new RoleEntity();
+           roleAdmin.setName(ROLE_ADMIN);
         }
 
-        if (roleRepository.findRoleEntityByName(ROLE_MEMBER) == null) {
+        RoleEntity roleMember;
+        try {
+            roleMember = roleRepository.findRoleEntityByName(ROLE_MEMBER).get();
+        } catch (NoSuchElementException e){
+            roleMember = new RoleEntity();
             roleMember.setName(ROLE_MEMBER);
         }
 
         String adminUsername = "admin@gmail.com";
-        String password = "123456";
-
-        // Admin account
-        if (userRepository.findUserEntityByUsername(adminUsername) == null) {
+        String password = "Thao@12345";
+        System.out.println(passwordEncoder.encode(password));
+        try {
+            UserEntity  user = userRepository.findUserEntityByUsername(adminUsername).get();
+            userRepository.save(user);
+        } catch (NoSuchElementException e){
             UserEntity admin = new UserEntity();
             admin.setUsername(adminUsername);
             admin.setPassword(passwordEncoder.encode(password));
+
             HashSet<RoleEntity> roles = new HashSet<>();
             roles.add(roleAdmin);
             roles.add(roleMember);
@@ -53,13 +62,18 @@ public class DataSeedingListener implements ApplicationListener<ContextRefreshed
 
         String memberUsername = "member@gmail.com";
         // Member account
-        if (userRepository.findUserEntityByUsername(memberUsername) == null) {
+        try {
+            UserEntity  user = userRepository.findUserEntityByUsername(memberUsername).get();
+            userRepository.save(user);
+        } catch (NoSuchElementException e){
             UserEntity user = new UserEntity();
             user.setUsername(memberUsername);
             user.setPassword(passwordEncoder.encode(password));
+
             HashSet<RoleEntity> roles = new HashSet<>();
             roles.add(roleMember);
             user.setRoles(roles);
+
             userRepository.save(user);
         }
     }

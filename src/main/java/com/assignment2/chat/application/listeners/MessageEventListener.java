@@ -1,5 +1,6 @@
 package com.assignment2.chat.application.listeners;
 
+import com.assignment2.chat.application.enums.MessageType;
 import com.assignment2.chat.application.models.ChatMessage;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -38,11 +39,7 @@ public class MessageEventListener {
             if(username != null) {
                 logger.info(event + ": User Disconnected : " + username);
 
-                ChatMessage chatMessage = new ChatMessage();
-                chatMessage.setType(ChatMessage.MessageType.LEAVE);
-                chatMessage.setSender(username);
-
-                messagingTemplate.convertAndSend("/topic/public", chatMessage);
+                messagingTemplate.convertAndSend("/topic/public",  ChatMessage.builder().type(MessageType.LEAVE).sender(username));
             }
         }
     }

@@ -10,7 +10,11 @@
             </div>
 
             <ul id="messageArea">
-
+                    <li class="chat-message" th:each="message : ${allMessages}">
+                        <i style="background-color:rgb(33,150, 243);"></i>
+                        <span th:text="${message.sender}"></span>
+                        <p th:text="${message.content}"></p>
+                    </li>
             </ul>
 
             <div id="username-page" class="hidden">
