@@ -15,6 +15,8 @@ import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 import org.mockito.junit.MockitoJUnitRunner;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
 
 import java.time.LocalDateTime;
 import java.util.ArrayList;
@@ -72,13 +74,13 @@ class ChatServiceTest {
 
     @Test
     void loadAllChatMessagePositive() {
-        Iterable<ChatEntity> chatEntities = new ArrayList<>(Arrays.asList(chatEntity));
+        List<ChatEntity> chatEntities = new ArrayList<>(Arrays.asList(chatEntity));
+        Page<ChatEntity> page = new PageImpl(chatEntities);
         given(chatRepository.findAll()).willReturn(chatEntities);
 
         List<ChatMessage> chatMessageList = service.loadAllChatMessage();
 
-        assertEquals(((ArrayList<ChatEntity>) chatEntities).size(), chatMessageList.size());
-        //TODO:
+        assertEquals(page.getTotalElements(), chatMessageList.size());
     }
 
     @Test

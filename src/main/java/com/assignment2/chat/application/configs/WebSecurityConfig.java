@@ -46,8 +46,8 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
         http
                 .cors() // prevent request from another domain
                 .and().authorizeRequests()
-                .antMatchers("/admin/**", "/home/**", "/chat/**", "/topic/**", "/app/**").authenticated()
-                .antMatchers("/register").permitAll()
+                .antMatchers("/admin/**", "/home/**", "/chat/**", "/topic/**", "/app/**", "/signout/**").authenticated()
+                .antMatchers("/register", "/login").permitAll()
                 .antMatchers("/home/**", "/user/**").authenticated()
                 .and() .formLogin().loginPage("/login").usernameParameter("email").passwordParameter("password").defaultSuccessUrl("/home").failureUrl("/login?error")
                 .and().exceptionHandling().accessDeniedPage("/403");

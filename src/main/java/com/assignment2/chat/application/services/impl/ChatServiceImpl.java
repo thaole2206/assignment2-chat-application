@@ -7,6 +7,10 @@ import com.assignment2.chat.application.repositories.ChatRepository;
 import com.assignment2.chat.application.repositories.UserRepository;
 import com.assignment2.chat.application.services.ChatService;
 import lombok.AllArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 
 import javax.transaction.Transactional;
@@ -35,9 +39,11 @@ public class ChatServiceImpl implements ChatService {
     @Transactional
     public List<ChatMessage> loadAllChatMessage() {
         List<ChatMessage> chatMessageList = new ArrayList<>();
+        Pageable pageable = PageRequest.of(0, 3, Sort.by("sentDate").descending());
 
-        Iterable<ChatEntity> chatEntities = chatRepository.findAll();
-        for(ChatEntity chatEntity :  chatEntities){
+        Page<ChatEntity> page = chatRepository.findAll(pageable);
+
+        for(ChatEntity chatEntity :  page){
             chatMessageList.add(
                     ChatMessage.builder().content(chatEntity.getContent()).sender(chatEntity.getSender().getUsername()).sentDate(chatEntity.getSentDate())
                             .build());

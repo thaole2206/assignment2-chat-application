@@ -38,18 +38,6 @@ class UserDetailsServiceImplTest {
         userEntity = new UserEntity();
         userEntity.setUsername("thaolt15@fsoft.com.vn");
         userEntity.setPassword("123456");
-
-//        RoleEntity admin = new RoleEntity();
-//        admin.setName(CommonConstants.ROLE_ADMIN);
-//        RoleEntity member = new RoleEntity();
-//        member.setName(CommonConstants.ROLE_MEMBER);
-//
-//        Set<RoleEntity> roles = new HashSet<>();
-//        roles.add(admin);
-//        roles.add(member);
-//
-//        userEntity.setRoles(roles);
-
     }
 
     @Test

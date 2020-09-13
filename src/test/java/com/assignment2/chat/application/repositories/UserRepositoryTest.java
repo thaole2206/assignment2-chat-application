@@ -29,11 +29,6 @@ class UserRepositoryTest {
     @Autowired
     private TestEntityManager entityManager;
 
-//    @BeforeEach
-//    void setUp(){
-//        MockitoAnnotations.initMocks(this);
-//    }
-
     @Test
     void findUserEntityByUsernamePositive() {
         UserEntity detachedEntity = UserEntity.builder().username("username").password("123456").build();
@@ -42,6 +37,13 @@ class UserRepositoryTest {
 
         Optional<UserEntity> userEntity = userRepository.findUserEntityByUsername("username");
         assertEquals(userEntity.isPresent(), true);
+        assertEquals(userEntity.get().getUsername(), "username");
+    }
+
+    @Test
+    void findUserEntityByUsernameNegative() {
+        Optional<UserEntity> userEntity = userRepository.findUserEntityByUsername("username");
+        assertEquals(userEntity.isPresent(), false);
         assertEquals(userEntity.get().getUsername(), "username");
     }
 }

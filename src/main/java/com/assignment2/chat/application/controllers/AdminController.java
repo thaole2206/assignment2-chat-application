@@ -16,6 +16,8 @@ import javax.servlet.http.HttpServletResponse;
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.ArrayList;
+import java.util.Base64;
 import java.util.List;
 
 @Controller
@@ -25,10 +27,13 @@ import java.util.List;
 public class AdminController {
 
     private final ScreenShotService screenShotService;
-    private final ChatService chatService;
 
     @GetMapping("/user/{id}/images")
-    public void renderImageFromDB(@PathVariable String id, HttpServletResponse response) throws IOException {
+    public ModelAndView renderImageFromDB(@PathVariable String id, HttpServletResponse response) throws IOException {
+        ModelAndView mv = new ModelAndView();
+
+        List<String> images = new ArrayList<>();
+
         List<ScreenShotResponse> screenShotResponseList = screenShotService.findByUserId(Long.valueOf(id));
 
         for (ScreenShotResponse screenShotResponse : screenShotResponseList) {
@@ -37,14 +42,15 @@ public class AdminController {
                 int i = 0;
 
                 for (Byte wrappedByte : screenShotResponse.getFile()) {
-                    byteArray[i++] = wrappedByte; //auto unboxing
+                    byteArray[i++] = wrappedByte;
                 }
 
-                response.setContentType("image/jpeg");
-                InputStream is = new ByteArrayInputStream(byteArray);
-                IOUtils.copy(is, response.getOutputStream());
+                images.add(Base64.getEncoder().encodeToString(byteArray));
             }
         }
+        mv.getModel().put("images", images);
+        mv.setViewName("/admin/homepage");
+        return mv;
     }
 
 }

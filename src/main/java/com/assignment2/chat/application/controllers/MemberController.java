@@ -16,7 +16,7 @@ public class MemberController {
     private final ChatService chatService;
 
     @GetMapping("/user/home")
-    public ModelAndView getIndexPage(){
+    public ModelAndView getHomePage(){
         List<ChatMessage> messagesList = chatService.loadAllChatMessage();
 
         ModelAndView mv = new ModelAndView();

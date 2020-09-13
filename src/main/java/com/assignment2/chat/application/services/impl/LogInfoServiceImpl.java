@@ -25,7 +25,6 @@ public class LogInfoServiceImpl implements LogInfoService {
     public LogInfoEntity saveOrUpdate(LogInfo request) {
         UserEntity userEntity = userRepository.findUserEntityByUsername(request.getUser().getUsername()).orElse(null);
 
-        //TODO: write to log
         return logInfoRepository.save(
                 LogInfoEntity.builder()
                         .id(request.getId()).lastLoginDate(request.getLastLoginDate()).lastLogoutDate(request.getLastLogoutDate()).user(userEntity)
@@ -47,7 +46,8 @@ public class LogInfoServiceImpl implements LogInfoService {
     }
 
     @Override
-    public void recordLogIn(User user, LocalDateTime date) {
+    public LogInfoEntity recordLogIn(User user) {
+        LocalDateTime date = LocalDateTime.now();
         LogInfo login = findLogEntityByUser(user);
 
         if(login == null){
@@ -57,15 +57,16 @@ public class LogInfoServiceImpl implements LogInfoService {
         login.setUser(user);
         login.setLastLoginDate(date);
 
-        saveOrUpdate(login);
+        return saveOrUpdate(login);
     }
 
     @Override
-    public void recordLogOut(User user, LocalDateTime date) {
+    public LogInfoEntity recordLogOut(User user) {
+        LocalDateTime date = LocalDateTime.now();
         LogInfo logout = findLogEntityByUser(user);
         logout.setLastLogoutDate(date);
         logout.setUser(user);
 
-        saveOrUpdate(logout);
+        return saveOrUpdate(logout);
     }
 }

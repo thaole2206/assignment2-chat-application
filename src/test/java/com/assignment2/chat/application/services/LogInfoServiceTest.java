@@ -55,12 +55,7 @@ class LogInfoServiceTest {
 
         userEntity = UserEntity.builder().username(username).password(password).build();
 
-        GrantedAuthority authority = new GrantedAuthority() {
-            @Override
-            public String getAuthority() {
-                return ROLE_ADMIN;
-            }
-        };
+        GrantedAuthority authority = (GrantedAuthority) () -> ROLE_ADMIN;
 
         user = new User(username, password, new ArrayList<>(Arrays.asList(authority))) ;
 
@@ -109,11 +104,42 @@ class LogInfoServiceTest {
 
     @Test
     void recordLogInPositive(){
-        //TODO:
+        date = LocalDateTime.now();
+
+        LogInfoEntity savedEntity = LogInfoEntity.builder().user(userEntity).lastLoginDate(date).lastLogoutDate(date).id(1L).build();
+        LogInfoEntity updatedEntity = LogInfoEntity.builder().user(userEntity).lastLoginDate(LocalDateTime.now()).lastLogoutDate(date).id(1L).build();
+
+        given(logInfoRepository.findLogInfoEntityByUser_Username(user.getUsername())).willReturn(Optional.of(savedEntity));
+        given(userRepository.findUserEntityByUsername(username)).willReturn(Optional.of(userEntity));
+        given(logInfoRepository.save(any(LogInfoEntity.class))).willReturn(updatedEntity);
+
+        LogInfoEntity actualEntity = service.recordLogIn(user);
+
+        assertEquals(updatedEntity.getUser().getUsername(), actualEntity.getUser().getUsername());
+        assertEquals(updatedEntity.getLastLogoutDate(), actualEntity.getLastLogoutDate());
+        assertEquals(updatedEntity.getLastLoginDate(), actualEntity.getLastLoginDate());
     }
 
     @Test
     void recordLogInNegative(){
         //TODO:
+    }
+
+    @Test
+    void recordLogoutPositive(){
+        date = LocalDateTime.now();
+
+        LogInfoEntity savedEntity = LogInfoEntity.builder().user(userEntity).lastLoginDate(date).lastLogoutDate(date).id(1L).build();
+        LogInfoEntity updatedEntity = LogInfoEntity.builder().user(userEntity).lastLoginDate(date).lastLogoutDate(LocalDateTime.now()).id(1L).build();
+
+        given(logInfoRepository.findLogInfoEntityByUser_Username(user.getUsername())).willReturn(Optional.of(savedEntity));
+        given(userRepository.findUserEntityByUsername(username)).willReturn(Optional.of(userEntity));
+        given(logInfoRepository.save(any(LogInfoEntity.class))).willReturn(updatedEntity);
+
+        LogInfoEntity actualEntity = service.recordLogOut(user);
+
+        assertEquals(updatedEntity.getUser().getUsername(), actualEntity.getUser().getUsername());
+        assertEquals(updatedEntity.getLastLogoutDate(), actualEntity.getLastLogoutDate());
+        assertEquals(updatedEntity.getLastLoginDate(), actualEntity.getLastLoginDate());
     }
 }
