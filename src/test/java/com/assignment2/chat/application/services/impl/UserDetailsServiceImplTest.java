@@ -16,6 +16,7 @@ import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.*;
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.BDDMockito.given;
 
 @Slf4j
@@ -24,6 +25,7 @@ import static org.mockito.BDDMockito.given;
 class UserDetailsServiceImplTest {
 
     private UserDetailsServiceImpl userDetailsService;
+    private final String username = "member@gmail.com";
 
     @Mock
    private UserRepository userRepository;
@@ -36,30 +38,30 @@ class UserDetailsServiceImplTest {
         userDetailsService = new UserDetailsServiceImpl(userRepository);
 
         userEntity = new UserEntity();
-        userEntity.setUsername("thaolt15@fsoft.com.vn");
+        userEntity.setUsername(username);
         userEntity.setPassword("123456");
     }
 
     @Test
     void loadUserByUsernamePostive() {
-        given(userRepository.findUserEntityByUsername("thaolt15@fsoft.com.vn")).willReturn(Optional.of(userEntity));
+        given(userRepository.findUserEntityByUsername(any(String.class))).willReturn(Optional.of(userEntity));
 
-        UserDetails userDetails = userDetailsService.loadUserByUsername("thaolt15@fsoft.com.vn");
+        UserDetails userDetails = userDetailsService.loadUserByUsername(username);
         assertNotNull(userDetails);
         assertEquals(Optional.of(userEntity).orElse(null).getUsername(), userDetails.getUsername());
     }
 
     @Test
     void loadUserByUsernameNegative() {
-        given(userRepository.findUserEntityByUsername("thaolt25@fsoft.com.vn")).willReturn(Optional.empty());
-        assertThrows(UsernameNotFoundException.class, () -> userDetailsService.loadUserByUsername("thaolt25@fsoft.com.vn"));
+        given(userRepository.findUserEntityByUsername(any(String.class))).willReturn(Optional.empty());
+        assertThrows(UsernameNotFoundException.class, () -> userDetailsService.loadUserByUsername(username));
     }
 
     @Test
     void findUserByUsernamePostive(){
-        given(userRepository.findUserEntityByUsername("thaolt15@fsoft.com.vn")).willReturn(Optional.of(userEntity));
+        given(userRepository.findUserEntityByUsername(any(String.class))).willReturn(Optional.of(userEntity));
 
-        UserEntity entity = userDetailsService.findUserByUsername("thaolt15@fsoft.com.vn");
+        UserEntity entity = userDetailsService.findUserByUsername(username);
 
         assertNotNull(entity);
         assertEquals(entity.getUsername(), userEntity.getUsername());
@@ -68,7 +70,7 @@ class UserDetailsServiceImplTest {
 
     @Test
     void findUserByUsernameNegative(){
-        given(userRepository.findUserEntityByUsername("thaolt15@fsoft.com.vn")).willReturn(Optional.empty());
-        assertThrows(UsernameNotFoundException.class, () -> userDetailsService.loadUserByUsername("thaolt25@fsoft.com.vn"));
+        given(userRepository.findUserEntityByUsername(any(String.class))).willReturn(Optional.empty());
+        assertThrows(UsernameNotFoundException.class, () -> userDetailsService.loadUserByUsername(username));
     }
 }

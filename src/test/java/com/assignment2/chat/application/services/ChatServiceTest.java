@@ -76,7 +76,7 @@ class ChatServiceTest {
     void loadAllChatMessagePositive() {
         List<ChatEntity> chatEntities = new ArrayList<>(Arrays.asList(chatEntity));
         Page<ChatEntity> page = new PageImpl(chatEntities);
-        given(chatRepository.findAll()).willReturn(chatEntities);
+        given(chatRepository.findAll()).willReturn(page);
 
         List<ChatMessage> chatMessageList = service.loadAllChatMessage();
 

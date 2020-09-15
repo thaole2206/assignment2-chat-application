@@ -31,7 +31,7 @@ class UserRepositoryTest {
 
     @Test
     void findUserEntityByUsernamePositive() {
-        UserEntity detachedEntity = UserEntity.builder().username("username").password("123456").build();
+        UserEntity detachedEntity = UserEntity.builder().username("username").password(    "123456").build();
         entityManager.persist(detachedEntity);
         entityManager.flush();
 

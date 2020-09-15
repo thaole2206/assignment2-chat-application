@@ -46,12 +46,13 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
         http
                 .cors() // prevent request from another domain
                 .and().authorizeRequests()
-                .antMatchers("/admin/**", "/home/**", "/chat/**", "/topic/**", "/app/**", "/signout/**").authenticated()
+                .antMatchers("/admin/**", "/home/**", "/chat/**", "/topic/**", "/app/**", "/signout/**", "/screen/**").authenticated()
                 .antMatchers("/register", "/login").permitAll()
                 .antMatchers("/home/**", "/user/**").authenticated()
                 .and() .formLogin().loginPage("/login").usernameParameter("email").passwordParameter("password").defaultSuccessUrl("/home").failureUrl("/login?error")
                 .and().exceptionHandling().accessDeniedPage("/403");
         http.csrf().disable();
+        http.headers().frameOptions().sameOrigin();
 
     }
 }
